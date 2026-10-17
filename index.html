@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>∑ Polynomial Lab – Polynomial Operation System Using Arrays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#home"><b>∑</b> Polynomial Lab</a>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#calculator">Calculator</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="#about">About Project</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home" class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Polynomial Operation System</h1>
+      <p class="sub">Represent. Calculate. Simplify.</p>
+      <p class="lead">Add, subtract and multiply polynomials using nothing more than arrays. Each coefficient lives at the index that matches its power of x, and every result is shown step by step.</p>
+      <a class="btn btn-primary" href="#calculator" id="startBtn">Start Calculating</a>
+    </div>
+    <div class="demo" aria-label="Array representation example">
+      <div class="eq">3x<sup>2</sup> + 2x + 5</div>
+      <div class="arrow">is stored as</div>
+      <div class="cells" id="heroCells"></div>
+    </div>
+  </div>
+</section>
+
+<!-- CALCULATOR -->
+<section id="calculator" class="alt">
+  <div class="wrap">
+    <h2>Polynomial calculator</h2>
+    <p class="lead">Choose a degree for each polynomial (0 to 10), enter the coefficients, then pick an operation.</p>
+    <div class="grid2" style="margin-top:24px">
+      <div class="card">
+        <h3>Polynomial P(x)</h3>
+        <div class="deg-row"><label for="degP">Degree</label><input type="number" id="degP" min="0" max="10" value="2"></div>
+        <div class="coeffs" id="cP"></div>
+        <div class="err" id="errP" role="alert"></div>
+      </div>
+      <div class="card">
+        <h3>Polynomial Q(x)</h3>
+        <div class="deg-row"><label for="degQ">Degree</label><input type="number" id="degQ" min="0" max="10" value="2"></div>
+        <div class="coeffs" id="cQ"></div>
+        <div class="err" id="errQ" role="alert"></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px"><button class="btn btn-ghost" id="presetBtn">Load Preset Example</button></div>
+    <div class="ops">
+      <button class="btn btn-op" data-op="add" aria-pressed="false">Addition (+)</button>
+      <button class="btn btn-op" data-op="sub" aria-pressed="false">Subtraction (−)</button>
+      <button class="btn btn-op" data-op="mul" aria-pressed="false">Multiplication (×)</button>
+      <button class="btn btn-op" data-op="div" aria-pressed="false">Division (÷)</button>
+      <button class="btn btn-ghost" id="clearBtn">Clear</button>
+    </div>
+    <div class="err" id="errGlobal" role="alert" style="text-align:center"></div>
+    <div class="tools"><span style="color:var(--muted);align-self:center;font-weight:600">Calculus:</span>
+      <button class="btn btn-op" data-op="dP" aria-pressed="false">d/dx P(x)</button>
+      <button class="btn btn-op" data-op="dQ" aria-pressed="false">d/dx Q(x)</button>
+      <button class="btn btn-op" data-op="iP" aria-pressed="false">∫ P(x) dx</button>
+      <button class="btn btn-op" data-op="iQ" aria-pressed="false">∫ Q(x) dx</button>
+    </div>
+
+    <!-- RESULT (hidden until a calculation runs) -->
+    <div id="result" class="card" hidden>
+      <span class="badge" id="resOp"></span>
+      <div class="res-line" id="resP"></div>
+      <div class="res-line" id="resQ"></div>
+      <h3 style="margin-top:18px">Result</h3>
+      <div class="res-main" id="resMain"></div>
+      <h3 style="margin-top:14px">Step-by-step</h3>
+      <ol class="steps" id="resSteps"></ol>
+      <h3 style="margin-top:14px">Array representation (constant term first)</h3>
+      <div class="rawarr" id="resArr"></div>
+      <div style="margin-top:12px"><button class="btn btn-small" id="copyBtn">Copy result</button></div>
+      <div class="panel"><h3>Evaluate (Horner’s method)</h3>
+        <div class="row"><label for="evalX">x =</label><input type="number" id="evalX" value="2" step="any"><span id="evalOut"></span></div></div>
+      <div class="panel"><h3>Graph</h3>
+        <div class="row"><label for="graphR">x range ±</label><input type="number" id="graphR" value="5" min="1" max="50">
+          <span class="legend"><span style="color:#6366f1">● P(x)</span><span style="color:#16a34a">● Q(x)</span><span style="color:#dc2626">● Result</span></span></div>
+        <canvas id="graph" width="720" height="320" aria-label="Graph of P, Q and the result"></canvas></div>
+      <div class="panel"><h3>History</h3><ul class="hist" id="hist"></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <p class="lead">A polynomial is a list of coefficients. An array is a list with numbered positions, so the two fit together neatly.</p>
+    <div class="grid2" style="margin-top:20px">
+      <div class="card light">
+        <h3>Storage rule</h3>
+        <p>The coefficient of x<sup>k</sup> is stored at <b>index k</b>. The array length is always <b>degree + 1</b>, and missing powers hold 0.</p>
+        <div class="cells" id="howCells"></div>
+        <p style="margin-top:14px">So 3x<sup>2</sup> + 2x + 5 becomes <b>[5, 2, 3]</b>.</p>
+      </div>
+      <div class="card">
+        <h3>Why arrays?</h3>
+        <ul class="plain">
+          <li>Reading the coefficient of any power takes one step: <code>P[k]</code>.</li>
+          <li>Adding two polynomials is a single loop over matching indexes.</li>
+          <li>The cost is wasted space for sparse polynomials such as x<sup>100</sup> + 1.</li>
+        </ul>
+      </div>
+    </div>
+    <h2 style="margin-top:48px">Algorithms</h2>
+    <div class="grid3" style="margin-top:20px">
+      <div class="card">
+        <h3>Addition</h3>
+        <div class="formula">R[k] = P[k] + Q[k]</div>
+        <p style="margin-top:10px">Pad the shorter array with zeros so both have the same length, then add index by index.</p>
+        <pre>n = max(len(P), len(Q))
+pad P and Q with 0 to length n
+for k = 0 to n-1:
+    R[k] = P[k] + Q[k]</pre>
+      </div>
+      <div class="card">
+        <h3>Subtraction</h3>
+        <div class="formula">R[k] = P[k] − Q[k]</div>
+        <p style="margin-top:10px">Same alignment as addition. Only the sign of Q’s coefficients changes.</p>
+        <pre>n = max(len(P), len(Q))
+pad P and Q with 0 to length n
+for k = 0 to n-1:
+    R[k] = P[k] - Q[k]</pre>
+      </div>
+      <div class="card">
+        <h3>Multiplication</h3>
+        <div class="formula">R[i+j] += P[i] × Q[j]</div>
+        <p style="margin-top:10px">Every term of P meets every term of Q. Powers add (x<sup>i</sup>·x<sup>j</sup> = x<sup>i+j</sup>), so the product is added at index i + j. This is convolution.</p>
+        <pre>R = array of size
+    deg(P)+deg(Q)+1, all 0
+for i = 0 to deg(P):
+  for j = 0 to deg(Q):
+    R[i+j] += P[i] * Q[j]</pre>
+      </div>
+      <div class="card">
+        <h3>Division</h3>
+        <div class="formula">P = Q × quotient + remainder</div>
+        <p style="margin-top:10px">Long division on arrays. Work from the highest index down, divide the leading term by Q’s leading coefficient, then subtract.</p>
+        <pre>r = copy of P
+for k = deg(r) down to deg(Q):
+    t = r[k] / Q[deg(Q)]
+    quotient[k - deg(Q)] = t
+    for j = 0 to deg(Q):
+        r[k - deg(Q) + j] -= t * Q[j]
+remainder = r[0 .. deg(Q)-1]</pre>
+      </div>
+      <div class="card">
+        <h3>Derivative and integral</h3>
+        <div class="formula">d/dx: k·P[k] → index k−1<br>∫: P[k]/(k+1) → index k+1</div>
+        <p style="margin-top:10px">Calculus becomes an index shift plus a multiply or divide. The integral keeps index 0 free for the constant C.</p>
+        <pre>derivative:
+for k = 1 to n:
+    D[k-1] = k * P[k]
+integral:
+for k = 0 to n:
+    I[k+1] = P[k] / (k+1)</pre>
+      </div>
+      <div class="card">
+        <h3>Evaluation (Horner)</h3>
+        <div class="formula">P(x) = a0 + x(a1 + x(a2 + …))</div>
+        <p style="margin-top:10px">Nested form needs only n multiplications and n additions, instead of computing every power of x.</p>
+        <pre>result = 0
+for k = n down to 0:
+    result = result * x + P[k]</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="alt">
+  <div class="wrap">
+    <h2>About the project</h2>
+    <div class="grid2" style="margin-top:20px">
+      <div class="card">
+        <h3>Project details</h3>
+        <ul class="plain">
+          <li><b>Title:</b> Polynomial Operation System Using Arrays</li>
+          <li><b>Subject:</b> Data Structures</li>
+          <li><b>Core concept:</b> Arrays (index = exponent)</li>
+          <li><b>Language:</b> JavaScript (with HTML5 and CSS3)</li>
+          <li><b>Students:</b> Atul Khandekar, Shivam Wande, Sneha Ghule, Adhrika Kumari</li>
+          <li><b>College:</b> JSPM RCOE, Tathawade</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Objectives</h3>
+        <ul class="plain">
+          <li>Represent polynomials with a one-dimensional array.</li>
+          <li>Implement addition, subtraction and multiplication.</li>
+          <li>Handle different degrees, zero and negative coefficients.</li>
+          <li>Show every step so the algorithm can be explained.</li>
+        </ul>
+        <h3 style="margin-top:14px">Learning outcomes</h3>
+        <ul class="plain">
+          <li>Map a mathematical idea onto a data structure.</li>
+          <li>Analyse time complexity: O(n) for add and subtract, O(n·m) for multiply.</li>
+          <li>Recognise the space trade-off of array storage.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>∑ Polynomial Lab · Data Structures project · Built with HTML, CSS and vanilla JavaScript</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
